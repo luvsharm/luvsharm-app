@@ -67,6 +67,16 @@ button{font:inherit;color:inherit;cursor:pointer}
 .works figure{margin:0;border-radius:18px;overflow:hidden;display:flex;flex-direction:column;border:1px solid var(--line)}
 .works img{width:100%;aspect-ratio:1;object-fit:cover;display:block}
 .works figcaption{padding:10px 12px 12px;font-size:13px;font-weight:600;line-height:1.3;color:var(--ink);background:var(--surface)}
+.card input[type=password],input[type=password]{font:inherit;color:var(--ink);background:var(--surface);border:1px solid var(--line);border-radius:12px;padding:12px 14px;width:100%}
+#admPanel:not([hidden]){display:flex}
+#admTabs button{font-size:13px;padding:9px 4px}
+.ord{display:flex;flex-direction:column;gap:8px;padding:14px 0;border-bottom:1px solid var(--line)}
+.ord:first-child{padding-top:0}.ord:last-child{border:0;padding-bottom:0}
+.ord-h{display:flex;justify-content:space-between;gap:10px;align-items:center;flex-wrap:wrap}
+.ord-ph{display:flex;gap:8px;flex-wrap:wrap}
+.ord-ph a{display:flex;flex-direction:column;gap:2px;font-size:11px;color:var(--muted);text-decoration:none;width:84px}
+.ord-ph img{width:84px;height:48px;object-fit:cover;border-radius:6px}
+.row-btns{display:flex;gap:8px;flex-wrap:wrap}
 .rv-photos{display:flex;gap:8px;flex-wrap:wrap}
 .rv-photos button{border:0;padding:0;background:none;position:relative;border-radius:12px;overflow:hidden;width:72px;height:72px}
 .rv-photos img{width:100%;height:100%;object-fit:cover;display:block}
@@ -74,6 +84,15 @@ button{font:inherit;color:inherit;cursor:pointer}
 .rv-add{display:inline-flex;align-items:center;justify-content:center;gap:6px;border:1px dashed var(--taupe);border-radius:12px;padding:10px 14px;background:var(--surface);font-weight:600;align-self:flex-start}
 .lightbox{position:fixed;inset:0;background:rgba(20,10,8,.85);display:flex;align-items:center;justify-content:center;z-index:60;padding:16px}
 .lightbox img{max-width:100%;max-height:100%;border-radius:12px}
+.payopts{display:flex;flex-direction:column;gap:8px}
+.payopt{display:flex;gap:12px;align-items:flex-start;text-align:left;border:2px solid var(--line);background:var(--surface);border-radius:16px;padding:14px}
+.payopt[aria-checked="true"]{border-color:var(--ink);background:var(--blush);color:#412e2a}
+.payopt .dot{flex:none;width:20px;height:20px;border-radius:50%;border:2px solid currentColor;margin-top:2px;display:grid;place-items:center}
+.payopt[aria-checked="true"] .dot::after{content:"";width:10px;height:10px;border-radius:50%;background:currentColor}
+.payopt b{display:block}
+.payopt span.d{display:block;font-size:13px;opacity:.8;margin-top:2px}
+.req-row{display:flex;justify-content:space-between;align-items:center;gap:12px;padding:6px 0}
+.req-row code{font:600 16px var(--f-body);letter-spacing:.04em;word-break:break-all}
 /* cards, lists */
 .card{background:var(--surface);border:1px solid var(--line);border-radius:20px;padding:16px;box-shadow:var(--shadow)}
 .sec{display:flex;flex-direction:column;gap:12px}
@@ -218,7 +237,7 @@ details.bd summary{cursor:pointer;font-weight:600}
 <!-- HOME -->
 <section class="view" id="v-home" hidden>
   <div class="wrap" style="gap:28px">
-    <div class="top"><div class="logo">luv<i>sharm</i></div><a class="small muted" href="#admin" id="adminLink">Адмінка (демо)</a></div>
+    <div class="top"><div class="logo">luv<i>sharm</i></div></div>
     <div class="hero">
       <h1>Браслети Nomination <em>з вашими фото</em></h1>
       <p class="muted">Оберіть колір основи, довжину та шарми. Фото обрізаєте під шарм самі, а ми друкуємо й клеїмо.</p>
@@ -250,7 +269,7 @@ details.bd summary{cursor:pointer;font-weight:600}
           <input type="file" id="rvFile" accept="image/*" multiple hidden>
         </div>
         <button class="btn sm" type="submit" style="align-self:flex-start">Надіслати відгук</button>
-        <p class="muted small">Демо: відгуки зберігаються лише в цьому браузері. У робочій версії вони потраплятимуть до бази.</p>
+        <p class="muted small">Відгук з'являється на сайті після перевірки майстринею.</p>
       </form>
     </div>
 
@@ -263,7 +282,7 @@ details.bd summary{cursor:pointer;font-weight:600}
       </form>
     </div>
 
-    <div class="foot"><span>Luvsharm · ТГК: LUVSHARM</span><span>Макет</span></div>
+    <div class="foot"><span>Luvsharm · ТГК: LUVSHARM</span></div>
   </div>
 </section>
 
@@ -323,8 +342,11 @@ details.bd summary{cursor:pointer;font-weight:600}
     <div class="top"><button class="back" id="pBack">← Назад</button><div class="logo">luv<i>sharm</i></div></div>
     <h2 style="font-size:19px">Оплата</h2>
     <div class="card" id="paySum"></div>
-    <div class="demo">Оплату ще не підключено. Це демо-кнопка: після підключення Monobank, LiqPay або WayForPay тут відкриватиметься сторінка оплати, а вам прийде повідомлення із замовленням.</div>
-    <button class="btn" id="payBtn">Оплатити (демо)</button>
+    <div class="sec"><h2>Спосіб оплати</h2><div class="payopts" id="payOpts" role="radiogroup" aria-label="Спосіб оплати"></div></div>
+    <div class="card" id="payReq"></div>
+    <p class="muted small">Оплатіть переказом на картку й натисніть кнопку нижче. Майстриня перевірить надходження та підтвердить замовлення.</p>
+    <div class="err" id="payErr"></div>
+    <button class="btn" id="payBtn">Я оплатив(ла)</button>
   </div>
 </section>
 
@@ -333,7 +355,7 @@ details.bd summary{cursor:pointer;font-weight:600}
   <div class="wrap" style="gap:18px">
     <div class="top"><div class="logo">luv<i>sharm</i></div></div>
     <h2 style="font-size:19px">Замовлення прийнято</h2>
-    <div class="card"><p>Номер замовлення: <b id="orderNo"></b></p><p class="muted small" style="margin-top:6px">Це демо: нічого нікуди не надіслано. У робочій версії вам прийдуть фото в обрізаному вигляді, склад браслета, дані доставки й підтвердження оплати.</p></div>
+    <div class="card"><p>Номер замовлення: <b id="orderNo"></b></p><p style="margin-top:6px" id="doneInfo"></p><p class="muted small" style="margin-top:6px">Статус: очікує підтвердження оплати.</p><p class="muted small" style="margin-top:6px">Майстриня отримала замовлення з вашими фото. Вона перевірить оплату й підтвердить замовлення.</p></div>
     <button class="btn ghost" id="newOrder">Скласти ще один</button>
   </div>
 </section>
@@ -342,10 +364,18 @@ details.bd summary{cursor:pointer;font-weight:600}
 <section class="view" id="v-admin" hidden>
   <div class="wrap" style="gap:18px">
     <div class="top"><a class="back" href="#home" style="text-decoration:none;color:inherit">← На головну</a><div class="logo">luv<i>sharm</i></div></div>
-    <h2 style="font-size:19px">Наявність (демо адмінки)</h2>
-    <p class="muted small">Вимкнений пункт у конструкторі стає недоступним. Зараз перемикачі працюють лише в цьому браузері; у робочій версії вони зберігатимуться в базі й діятимуть для всіх покупців.</p>
-    <div class="sec"><h2>Основи</h2><div class="card" id="admBases"></div></div>
-    <div class="sec"><h2>Об'ємні шарми</h2><div class="card" id="admCharms"></div></div>
+    <h2 style="font-size:19px">Керування</h2>
+    <form class="card" id="admLogin" novalidate style="display:flex;flex-direction:column;gap:12px">
+      <div class="field"><label for="admEmail">Пошта</label><input type="text" id="admEmail" autocomplete="username" inputmode="email"></div>
+      <div class="field"><label for="admPass">Пароль</label><input type="password" id="admPass" autocomplete="current-password"></div>
+      <div class="err" id="admErr"></div>
+      <button class="btn" type="submit">Увійти</button>
+    </form>
+    <div id="admPanel" hidden style="display:flex;flex-direction:column;gap:14px">
+      <div class="top"><span class="muted small" id="admWho"></span><button class="back" id="admOut" type="button">Вийти</button></div>
+      <div class="seg" id="admTabs" role="tablist"></div>
+      <div class="card" id="admBody"></div>
+    </div>
   </div>
 </section>
 
@@ -380,7 +410,8 @@ const CHARMS=[
 ];
 const CH=Object.fromEntries(CHARMS.map(c=>[c.id,c]));
 const PRICE={plain:[20,25],photo:[30,35],glitter:[35,40],extPhoto:65,extPlain:55}; // [silver, colour]
-const avail=store.get('ls_avail',{});
+const PAY={card:'',holder:'',prepay:150,npFixed:20,npPct:0.02}; // card: впишіть номер картки, коли будете готові
+const avail={};
 const isOn=id=>avail[id]!==false;
 const uah=n=>n.toLocaleString('uk-UA')+' грн';
 const plural=(n,a,b,c)=>{const m=n%10,h=n%100;return h>10&&h<15?c:m===1?a:m>1&&m<5?b:c};
@@ -465,6 +496,39 @@ function renderGridInto(el,br,withSel){
   el.innerHTML=br.slots.map((it,i)=>slotHTML(br,it,i,withSel&&S.sel===i)).join('');
 }
 
+/* ---------- backend (Supabase) ---------- */
+const SB={url:'https://zxdpnyadvwoeisrxhhbp.supabase.co',key:'sb_publishable_LN3WrdaiCIyOuasXCwYSGg_kXpbACjJ'};
+let sess=store.get('ls_sess',null);
+function setSess(j){sess=j?{at:j.access_token,rt:j.refresh_token,exp:Math.floor(Date.now()/1000)+(j.expires_in||3600),email:(j.user&&j.user.email)||(sess&&sess.email)||''}:null;store.set('ls_sess',sess)}
+async function token(){
+  if(!sess)return null;
+  if(sess.exp-60>Date.now()/1000)return sess.at;
+  try{
+    const r=await fetch(SB.url+'/auth/v1/token?grant_type=refresh_token',{method:'POST',headers:{apikey:SB.key,'Content-Type':'application/json'},body:JSON.stringify({refresh_token:sess.rt})});
+    if(!r.ok)throw 0;setSess(await r.json());return sess.at;
+  }catch(e){setSess(null);return null}
+}
+async function api(path,o){
+  o=o||{};const h=Object.assign({apikey:SB.key},o.headers||{});
+  if(o.auth){const tk=await token();if(!tk)throw new Error('auth');h.Authorization='Bearer '+tk}
+  if(o.json!==undefined)h['Content-Type']='application/json';
+  let res;
+  try{res=await fetch(SB.url+path,{method:o.method||'GET',headers:h,body:o.json!==undefined?JSON.stringify(o.json):o.body})}catch(e){throw new Error('network')}
+  if(!res.ok){let m='';try{m=(await res.json()).message||''}catch(e){}throw new Error(m||('HTTP '+res.status))}
+  const ct=res.headers.get('content-type')||'';
+  return ct.indexOf('json')>=0?res.json():null;
+}
+function dataToBlob(d){const p=d.split(','),m=/:(.*?);/.exec(p[0])[1],bin=atob(p[1]),u=new Uint8Array(bin.length);for(let i=0;i<bin.length;i++)u[i]=bin.charCodeAt(i);return new Blob([u],{type:m})}
+async function upload(bucket,path,blob){await api('/storage/v1/object/'+bucket+'/'+path,{method:'POST',body:blob,headers:{'Content-Type':blob.type||'image/jpeg','x-upsert':'false'}})}
+const pubUrl=p=>SB.url+'/storage/v1/object/public/review-photos/'+p;
+const uid=()=>(window.crypto&&crypto.randomUUID)?crypto.randomUUID():'xxxxxxxx-xxxx-4xxx-yxxx-xxxxxxxxxxxx'.replace(/[xy]/g,c=>{const r=Math.random()*16|0;return(c==='x'?r:(r&3|8)).toString(16)});
+let REV=null,QS=null,lastLoad=0;
+async function loadAvail(){try{const rows=await api('/rest/v1/availability?select=id,in_stock');rows.forEach(r=>{avail[r.id]=r.in_stock});S.braces.forEach(b=>{if(!isOn(b.base))b.base=BASE_ORDER.find(isOn)||b.base});rerender()}catch(e){}}
+async function loadReviews(){try{REV=await api('/rest/v1/reviews?select=name,stars,body,photos,created_at&approved=eq.true&order=created_at.desc&limit=50')}catch(e){REV='err'}renderReviews()}
+async function loadQs(){try{QS=await api('/rest/v1/questions?select=body,answer&answer=not.is.null&order=answered_at.desc&limit=50')}catch(e){QS='err'}renderQA()}
+function refresh(){const n=Date.now();if(n-lastLoad<15000)return;lastLoad=n;loadAvail();loadReviews();loadQs()}
+function rerender(){const v=(location.hash||'#home').slice(1);if(v==='builder'&&!$('#v-builder').hidden&&$('#sheetScrim').hidden&&$('#cropScrim').hidden)renderBuilder();else if((v==='home'||v==='')&&!$('#v-home').hidden)renderHome(true)}
+
 /* ---------- views ---------- */
 const VIEWS=['home','builder','checkout','pay','done','admin'];
 function show(v){
@@ -476,8 +540,9 @@ function route(){
   const h=(location.hash||'#home').slice(1);
   const v=VIEWS.includes(h)?h:'home';
   if((v==='checkout'||v==='pay'||v==='done')&&!ship.ok){location.hash='#builder';return}
-  if(v==='home')renderHome();if(v==='admin')renderAdmin();if(v==='checkout')renderSummary('#sumBox');if(v==='pay')renderSummary('#paySum');
+  if(v==='home')renderHome();if(v==='admin')renderAdmin();if(v==='checkout')renderSummary('#sumBox');if(v==='pay'){renderSummary('#paySum');renderPay()}
   show(v);
+  if(v==='home'||v==='builder')refresh();
 }
 window.addEventListener('hashchange',route);
 const go=v=>{if(location.hash==='#'+v)route();else location.hash='#'+v};
@@ -502,8 +567,10 @@ function renderStars(){
 $('#rvStars').addEventListener('click',e=>{const b=e.target.closest('[data-n]');if(b){rvStar=+b.dataset.n;renderStars()}});
 function esc(s){return String(s).replace(/[&<>"]/g,c=>({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;'}[c]))}
 function renderReviews(){
-  const rv=store.get('ls_reviews',[]);
-  $('#reviewList').innerHTML=rv.length?rv.map(r=>'<div class="review"><div><b>'+esc(r.name)+'</b> <span style="color:var(--rose)">'+'★'.repeat(r.stars)+'</span></div><p>'+esc(r.text)+'</p>'+((r.photos&&r.photos.length)?'<div class="rv-photos">'+r.photos.map(p=>'<button type="button" data-lb="'+p+'" aria-label="Відкрити фото"><img alt="Фото до відгуку" src="'+p+'"></button>').join('')+'</div>':'')+'<span class="muted small">'+esc(r.date)+'</span></div>').join(''):'<div class="empty">Відгуків ще немає. Напишіть перший після замовлення.</div>';
+  const box=$('#reviewList');
+  if(REV===null)box.innerHTML='<div class="empty">Завантаження відгуків…</div>';
+  else if(REV==='err')box.innerHTML='<div class="empty">Не вдалося завантажити відгуки. Спробуйте оновити сторінку.</div>';
+  else box.innerHTML=REV.length?REV.map(r=>'<div class="review"><div><b>'+esc(r.name)+'</b> <span style="color:var(--rose)">'+'★'.repeat(r.stars)+'</span></div><p>'+esc(r.body)+'</p>'+((r.photos&&r.photos.length)?'<div class="rv-photos">'+r.photos.map(p=>'<button type="button" data-lb="'+esc(pubUrl(p))+'" aria-label="Відкрити фото"><img alt="Фото до відгуку" loading="lazy" src="'+esc(pubUrl(p))+'"></button>').join('')+'</div>':'')+'<span class="muted small">'+new Date(r.created_at).toLocaleDateString('uk-UA')+'</span></div>').join(''):'<div class="empty">Відгуків ще немає. Напишіть перший після замовлення.</div>';
   renderStars();
 }
 let rvPics=[];
@@ -529,13 +596,18 @@ $('#rvPhotos').addEventListener('click',e=>{const b=e.target.closest('[data-rm]'
 $('#reviewList').addEventListener('click',e=>{const b=e.target.closest('[data-lb]');if(!b)return;
   const lb=document.createElement('div');lb.className='lightbox';lb.innerHTML='<img alt="Фото до відгуку" src="'+b.dataset.lb+'">';
   lb.addEventListener('click',()=>lb.remove());document.body.appendChild(lb)});
-$('#reviewForm').addEventListener('submit',e=>{
-  e.preventDefault();const name=$('#rvName').value.trim(),text=$('#rvText').value.trim();
-  if(!name||!text){$('#rvErr').textContent='Вкажіть ім\'я та напишіть кілька слів про браслет.';return}
-  $('#rvErr').textContent='';
-  const rv=store.get('ls_reviews',[]);rv.unshift({name,text,stars:rvStar,photos:rvPics.slice(),date:new Date().toLocaleDateString('uk-UA')});
-  if(!store.set('ls_reviews',rv)){rv[0].photos=[];if(!store.set('ls_reviews',rv)){$('#rvErr').textContent='Не вдалося зберегти відгук у браузері.';return}$('#rvErr').textContent='Відгук збережено без фото: у браузері закінчилося місце.'}
-  $('#rvName').value='';$('#rvText').value='';rvPics=[];renderRvPics();renderReviews();
+$('#reviewForm').addEventListener('submit',async e=>{
+  e.preventDefault();const name=$('#rvName').value.trim(),text=$('#rvText').value.trim(),msg=$('#rvErr');msg.style.color='';
+  if(!name||!text){msg.textContent='Вкажіть ім\'я та напишіть кілька слів про браслет.';return}
+  const btn=$('#reviewForm button[type=submit]');btn.disabled=true;msg.textContent='Надсилаємо…';
+  try{
+    const paths=[];
+    for(const d of rvPics){const p=uid()+'.jpg';await upload('review-photos',p,dataToBlob(d));paths.push(p)}
+    await api('/rest/v1/reviews',{method:'POST',json:{name:name,stars:rvStar,body:text,photos:paths},headers:{Prefer:'return=minimal'}});
+    $('#rvName').value='';$('#rvText').value='';rvPics=[];renderRvPics();
+    msg.style.color='var(--ok)';msg.textContent='Дякуємо! Відгук з\'явиться після перевірки.';
+  }catch(err){console.error(err);msg.textContent='Не вдалося надіслати відгук. Перевірте інтернет і спробуйте ще раз. ('+err.message+')'}
+  btn.disabled=false;
 });
 /* Q&A */
 const FAQ=[
@@ -543,27 +615,100 @@ const FAQ=[
  ['Що буде, якщо моє фото обріжеться?','Ви самі обираєте кадр: після додавання фото відкривається вікно, де можна пересунути й збільшити зображення під формат шарму.']
 ];
 function renderQA(){
-  const qs=store.get('ls_questions',[]);
+  const qs=Array.isArray(QS)?QS:[];
   $('#qaList').innerHTML=FAQ.map(f=>'<details><summary>'+esc(f[0])+'</summary><p>'+esc(f[1])+'</p></details>').join('')+
-    qs.map(q=>'<details open><summary>'+esc(q.q)+'</summary><p><span class="pill">Очікує відповіді</span></p></details>').join('');
+    qs.map(q=>'<details><summary>'+esc(q.body)+'</summary><p>'+esc(q.answer)+'</p></details>').join('');
 }
-$('#qForm').addEventListener('submit',e=>{
-  e.preventDefault();const q=$('#qText').value.trim();
-  if(!q){$('#qErr').textContent='Напишіть своє питання.';return}
-  $('#qErr').textContent='';const qs=store.get('ls_questions',[]);qs.unshift({q});store.set('ls_questions',qs);$('#qText').value='';renderQA();
+$('#qForm').addEventListener('submit',async e=>{
+  e.preventDefault();const q=$('#qText').value.trim(),msg=$('#qErr');msg.style.color='';
+  if(!q){msg.textContent='Напишіть своє питання.';return}
+  const btn=$('#qForm button[type=submit]');btn.disabled=true;msg.textContent='Надсилаємо…';
+  try{
+    await api('/rest/v1/questions',{method:'POST',json:{body:q},headers:{Prefer:'return=minimal'}});
+    $('#qText').value='';msg.style.color='var(--ok)';msg.textContent='Питання надіслано. Відповідь з\'явиться тут.';
+  }catch(err){console.error(err);msg.textContent='Не вдалося надіслати питання. Спробуйте ще раз. ('+err.message+')'}
+  btn.disabled=false;
 });
 $('#goBuilder').addEventListener('click',()=>go('builder'));
 
-/* ---------- admin (demo) ---------- */
-function renderAdmin(){
-  const row=(id,name,img)=>'<div class="admin-row"><div><img alt="" src="'+img+'"><b>'+name+'</b></div><div class="tg"><input type="checkbox" data-av="'+id+'" aria-label="'+name+' в наявності"'+(isOn(id)?' checked':'')+'><span></span></div></div>';
-  $('#admBases').innerHTML=BASE_ORDER.map(b=>row(b,BASES[b].name,IMG['base_'+b])).join('');
-  $('#admCharms').innerHTML=CHARMS.map(c=>row(c.id,c.name,IMG[c.img])).join('');
+/* ---------- admin ---------- */
+let admTab='orders';
+const ST={new:'Нове',paid:'Оплачено',in_work:'В роботі',shipped:'Відправлено',done:'Завершено',cancelled:'Скасовано'};
+async function renderAdmin(){
+  const tk=await token();
+  $('#admLogin').hidden=!!tk;$('#admPanel').hidden=!tk;
+  if(tk){$('#admWho').textContent=(sess&&sess.email)||'';renderAdmTabs();loadAdm()}
 }
-$('#v-admin').addEventListener('change',e=>{
-  const id=e.target.dataset&&e.target.dataset.av;if(!id)return;
-  avail[id]=e.target.checked;store.set('ls_avail',avail);
-  S.braces.forEach(b=>{if(!isOn(b.base))b.base=BASE_ORDER.find(isOn)||b.base});
+function renderAdmTabs(){$('#admTabs').innerHTML=[['orders','Замовлення'],['reviews','Відгуки'],['questions','Питання'],['stock','Наявність']].map(x=>'<button type="button" role="tab" data-at="'+x[0]+'" aria-selected="'+(admTab===x[0])+'">'+x[1]+'</button>').join('')}
+$('#admTabs').addEventListener('click',e=>{const b=e.target.closest('[data-at]');if(b){admTab=b.dataset.at;renderAdmTabs();loadAdm()}});
+$('#admLogin').addEventListener('submit',async e=>{
+  e.preventDefault();$('#admErr').textContent='';
+  try{
+    const r=await fetch(SB.url+'/auth/v1/token?grant_type=password',{method:'POST',headers:{apikey:SB.key,'Content-Type':'application/json'},body:JSON.stringify({email:$('#admEmail').value.trim(),password:$('#admPass').value})});
+    const j=await r.json();if(!r.ok)throw new Error('bad');
+    setSess(j);$('#admPass').value='';renderAdmin();
+  }catch(err){$('#admErr').textContent='Не вдалося увійти. Перевірте пошту й пароль.'}
+});
+$('#admOut').addEventListener('click',()=>{setSess(null);renderAdmin()});
+const slotLabel=x=>x.t==='photo'?'фото':x.t==='glitter'?'сяючий':x.t==='ext'?('подовжений'+(x.photo?' з фото':'')):x.t==='3d'?(CH[x.id]?CH[x.id].name:x.id):x.t==='mag'?'магнітне серце':'';
+function orderHTML(o,urls){
+  const c=o.customer||{},b=o.bracelets||{},pay=b.pay||{};
+  const items=(b.items||[]).map((br,bi)=>{
+    const sp=(br.slots||[]).map((x,i)=>({x,i})).filter(s=>s.x.t!=='plain'&&s.x.t!=='cont');
+    const plain=(br.slots||[]).filter(x=>x.t==='plain').length;
+    return '<div class="small"><b>'+(b.pair?'Браслет '+(bi+1)+': ':'')+esc((BASES[br.base]||{name:br.base}).name)+' основа, '+br.cm+' см, '+(br.slots||[]).length+' шармів</b><br><span class="muted">'+(sp.map(s=>'№'+(s.i+1)+' '+esc(slotLabel(s.x))).join('; ')||'')+(plain?(sp.length?'; ':'')+'без фото: '+plain:'')+'</span></div>';
+  }).join('');
+  const ph=(o.photos||[]).filter(p=>urls[p]).map(p=>{const m=/b(\d+)-s(\d+)(-ext)?\.jpg$/.exec(p);return '<a href="'+esc(urls[p])+'" target="_blank" rel="noopener"><img alt="" loading="lazy" src="'+esc(urls[p])+'"><span>'+(m?'Бр.'+m[1]+' шарм '+m[2]:'фото')+'</span></a>'}).join('');
+  const tg=c.tg?(c.tg.username?'@'+c.tg.username:'id '+c.tg.id):'';
+  return '<div class="ord"><div class="ord-h"><b>'+esc(o.number)+'</b><select data-ost="'+o.id+'" aria-label="Статус">'+Object.keys(ST).map(k=>'<option value="'+k+'"'+(o.status===k?' selected':'')+'>'+ST[k]+'</option>').join('')+'</select></div>'+
+    '<div class="muted small">'+new Date(o.created_at).toLocaleString('uk-UA')+'</div>'+
+    '<div class="small"><b>'+esc(c.name||'')+'</b>, '+esc(c.phone||'')+(tg?' · '+esc(tg):'')+'<br>'+esc(c.carrier||'')+', '+esc(c.city||'')+', '+esc(c.point||'')+(c.note?'<br><span class="muted">Коментар: '+esc(c.note)+'</span>':'')+'</div>'+
+    items+
+    '<div class="small"><b>Разом '+uah(o.total)+'</b> · '+(o.pay_mode==='pre'?'передоплата '+uah(pay.now||0)+', залишок '+uah(pay.remainder||0):'повна оплата')+'</div>'+
+    (ph?'<div class="ord-ph">'+ph+'</div>':'')+'</div>';
+}
+async function loadAdm(){
+  const box=$('#admBody');box.innerHTML='<div class="empty">Завантаження…</div>';
+  try{
+    if(admTab==='orders'){
+      const rows=await api('/rest/v1/orders?select=*&order=created_at.desc&limit=50',{auth:true});
+      const all=rows.flatMap(o=>o.photos||[]),urls={};
+      if(all.length){try{const s=await api('/storage/v1/object/sign/order-photos',{method:'POST',auth:true,json:{expiresIn:3600,paths:all}});s.forEach(x=>{if(x.signedURL)urls[x.path]=SB.url+'/storage/v1'+x.signedURL})}catch(e){}}
+      box.innerHTML=rows.length?rows.map(o=>orderHTML(o,urls)).join(''):'<div class="empty">Замовлень поки немає.</div>';
+    }else if(admTab==='reviews'){
+      const rows=await api('/rest/v1/reviews?select=*&order=created_at.desc&limit=100',{auth:true});
+      rows.sort((a,b)=>(a.approved-b.approved));
+      box.innerHTML=rows.length?rows.map(r=>'<div class="ord"><div class="ord-h"><b>'+esc(r.name)+' <span style="color:var(--rose)">'+'★'.repeat(r.stars)+'</span></b><span class="pill">'+(r.approved?'Опубліковано':'Чекає перевірки')+'</span></div><p class="small">'+esc(r.body)+'</p>'+((r.photos&&r.photos.length)?'<div class="ord-ph">'+r.photos.map(p=>'<a href="'+esc(pubUrl(p))+'" target="_blank" rel="noopener"><img alt="" loading="lazy" src="'+esc(pubUrl(p))+'"></a>').join('')+'</div>':'')+'<div class="row-btns">'+(r.approved?'':'<button class="btn sm" data-rv-ok="'+r.id+'">Опублікувати</button>')+'<button class="btn sm ghost" data-rv-del="'+r.id+'">Видалити</button></div></div>').join(''):'<div class="empty">Відгуків поки немає.</div>';
+    }else if(admTab==='questions'){
+      const rows=await api('/rest/v1/questions?select=*&order=created_at.desc&limit=100',{auth:true});
+      rows.sort((a,b)=>((a.answer?1:0)-(b.answer?1:0)));
+      box.innerHTML=rows.length?rows.map(q=>'<div class="ord"><b class="small">'+esc(q.body)+'</b>'+(q.answer?'<p class="small muted">'+esc(q.answer)+'</p><div class="row-btns"><button class="btn sm ghost" data-q-del="'+q.id+'">Видалити</button></div>':'<div class="field"><label for="qa-'+q.id+'">Ваша відповідь</label><textarea id="qa-'+q.id+'"></textarea></div><div class="row-btns"><button class="btn sm" data-q-ans="'+q.id+'">Відповісти</button><button class="btn sm ghost" data-q-del="'+q.id+'">Видалити</button></div>')+'</div>').join(''):'<div class="empty">Питань поки немає.</div>';
+    }else{
+      await loadAvail();
+      const row=(id,name,img)=>'<div class="admin-row"><div><img alt="" src="'+img+'"><b>'+name+'</b></div><div class="tg"><input type="checkbox" data-av="'+id+'" aria-label="'+name+' в наявності"'+(isOn(id)?' checked':'')+'><span></span></div></div>';
+      box.innerHTML='<h2 style="margin-bottom:8px">Основи</h2>'+BASE_ORDER.map(b=>row(b,BASES[b].name,IMG['base_'+b])).join('')+'<h2 style="margin:18px 0 8px">Об\'ємні шарми</h2>'+CHARMS.map(c=>row(c.id,c.name,IMG[c.img])).join('');
+    }
+  }catch(err){
+    if(err.message==='auth'){setSess(null);renderAdmin();return}
+    box.innerHTML='<div class="empty">Не вдалося завантажити. Спробуйте ще раз.</div>';
+  }
+}
+async function admAct(fn){try{await fn();loadAdm()}catch(err){if(err.message==='auth'){setSess(null);renderAdmin()}else $('#admBody').insertAdjacentHTML('afterbegin','<div class="err">Не вдалося виконати дію.</div>')}}
+$('#admBody').addEventListener('click',e=>{
+  const d=e.target.dataset||{};
+  if(d.rvOk)admAct(()=>api('/rest/v1/reviews?id=eq.'+d.rvOk,{method:'PATCH',auth:true,json:{approved:true},headers:{Prefer:'return=minimal'}}));
+  if(d.rvDel)admAct(()=>api('/rest/v1/reviews?id=eq.'+d.rvDel,{method:'DELETE',auth:true}));
+  if(d.qDel)admAct(()=>api('/rest/v1/questions?id=eq.'+d.qDel,{method:'DELETE',auth:true}));
+  if(d.qAns){const a=$('#qa-'+d.qAns).value.trim();if(!a)return;admAct(()=>api('/rest/v1/questions?id=eq.'+d.qAns,{method:'PATCH',auth:true,json:{answer:a,answered_at:new Date().toISOString()},headers:{Prefer:'return=minimal'}}))}
+});
+$('#admBody').addEventListener('change',async e=>{
+  const t=e.target,d=t.dataset||{};
+  if(d.ost){try{await api('/rest/v1/orders?id=eq.'+d.ost,{method:'PATCH',auth:true,json:{status:t.value},headers:{Prefer:'return=minimal'}})}catch(err){loadAdm()}}
+  if(d.av){
+    const prev=!t.checked;
+    try{await api('/rest/v1/availability?id=eq.'+d.av,{method:'PATCH',auth:true,json:{in_stock:t.checked,updated_at:new Date().toISOString()},headers:{Prefer:'return=minimal'}});avail[d.av]=t.checked}
+    catch(err){t.checked=prev}
+  }
 });
 
 /* ---------- builder ---------- */
@@ -732,9 +877,55 @@ $('#shipForm').addEventListener('submit',e=>{
   if(bad){bad.focus();return}
   go('pay');
 });
+let payMode='full';
+function payCalc(){
+  const T=total(),canPre=T>PAY.prepay,mode=canPre?payMode:'full';
+  const rem=canPre?T-PAY.prepay:0,comm=Math.ceil(PAY.npFixed+rem*PAY.npPct);
+  return{T,canPre,mode,rem,comm,now:mode==='pre'?PAY.prepay:T};
+}
+function renderPay(){
+  const c=payCalc();
+  const opt=(m,title,desc)=>'<button type="button" class="payopt" role="radio" data-pm="'+m+'" aria-checked="'+(c.mode===m)+'"><span class="dot"></span><span><b>'+title+'</b><span class="d">'+desc+'</span></span></button>';
+  $('#payOpts').innerHTML=(c.canPre?opt('pre','Передоплата '+PAY.prepay+' грн','Залишок '+uah(c.rem)+' сплачуєте грошовим переказом через Нову Пошту. Комісія Нової Пошти: '+PAY.npFixed+' грн + 2%, орієнтовно '+uah(c.comm)+'.'):'')+
+    opt('full','Повна оплата '+uah(c.T),'Без комісії за переказ залишку.');
+  const row=(l,v)=>'<div class="req-row"><span class="muted">'+l+'</span><b class="num">'+v+'</b></div>';
+  $('#payReq').innerHTML=row('До сплати зараз',uah(c.now))+
+    (PAY.card?'<div class="req-row"><code id="cardNo">'+esc(PAY.card)+'</code><button type="button" class="btn sm ghost" id="copyCard">Копіювати</button></div>'+(PAY.holder?'<div class="muted small">'+esc(PAY.holder)+'</div>':''):'<div class="muted small">Номер картки з\'явиться тут, коли майстриня його додасть.</div>')+
+    '<div class="muted small">У коментарі до переказу вкажіть ПІБ отримувача замовлення.</div>';
+}
+$('#payOpts').addEventListener('click',e=>{const b=e.target.closest('[data-pm]');if(b){payMode=b.dataset.pm;renderPay()}});
+$('#payReq').addEventListener('click',e=>{
+  if(e.target.id!=='copyCard')return;
+  const n=PAY.card,btn=e.target;
+  (navigator.clipboard?navigator.clipboard.writeText(n):Promise.reject()).then(()=>{btn.textContent='Скопійовано'}).catch(()=>{const r=document.createRange();r.selectNodeContents($('#cardNo'));const s=getSelection();s.removeAllRanges();s.addRange(r);btn.textContent='Виділено'});
+});
 $('#pBack').addEventListener('click',()=>go('checkout'));
-$('#payBtn').addEventListener('click',()=>{$('#orderNo').textContent='LS-'+String(Math.floor(Math.random()*9000)+1000);go('done')});
-$('#newOrder').addEventListener('click',()=>{S={pair:false,active:0,braces:[newBr(),newBr()],sel:null};ship.ok=false;go('builder')});
+let sending=false;
+const tgUser=(()=>{try{const u=window.Telegram.WebApp.initDataUnsafe.user;return u?{id:u.id,username:u.username||'',first_name:u.first_name||''}:null}catch(e){return null}})();
+$('#payBtn').addEventListener('click',async()=>{
+  if(sending)return;sending=true;
+  const btn=$('#payBtn'),err=$('#payErr'),c=payCalc(),id=uid();
+  btn.disabled=true;err.textContent='';
+  try{
+    const jobs=[];
+    const items=activeBraces().map((b,bi)=>({base:b.base,cm:b.cm,slots:b.slots.map((x,i)=>{
+      const o={t:x.t};if(x.id)o.id=x.id;if(x.half)o.half=x.half;if(x.gid)o.gid=x.gid;
+      if(x.img){o.photo=true;jobs.push({path:id+'/b'+(bi+1)+'-s'+(i+1)+(x.t==='ext'?'-ext':'')+'.jpg',data:x.img})}
+      return o})}));
+    const paths=[];
+    for(let k=0;k<jobs.length;k++){btn.textContent='Надсилаємо фото '+(k+1)+' з '+jobs.length+'…';await upload('order-photos',jobs[k].path,dataToBlob(jobs[k].data));paths.push(jobs[k].path)}
+    btn.textContent='Надсилаємо замовлення…';
+    const d=new Date(),number='LS-'+String(d.getMonth()+1).padStart(2,'0')+String(d.getDate()).padStart(2,'0')+'-'+String(Math.floor(Math.random()*9000)+1000);
+    const customer={name:$('#fName').value.trim(),phone:$('#fPhone').value.trim(),carrier:$('#fCarrier').value,city:$('#fCity').value.trim(),point:$('#fPoint').value.trim(),note:$('#fNote').value.trim()};
+    if(tgUser)customer.tg=tgUser;
+    await api('/rest/v1/orders',{method:'POST',headers:{Prefer:'return=minimal'},json:{id:id,number:number,customer:customer,bracelets:{pair:S.pair,items:items,pay:{mode:c.mode,now:c.now,remainder:c.rem}},total:c.T,pay_mode:c.mode,photos:paths}});
+    $('#orderNo').textContent=number;
+    $('#doneInfo').textContent=c.mode==='pre'?'Передоплата '+uah(PAY.prepay)+'. Залишок '+uah(c.rem)+' сплачується переказом через Нову Пошту.':'Повна оплата '+uah(c.T)+'.';
+    go('done');
+  }catch(e){console.error(e);err.textContent='Не вдалося надіслати замовлення. Перевірте інтернет і натисніть кнопку ще раз. Ваш браслет збережено. ('+e.message+')'}
+  btn.disabled=false;btn.textContent='Я оплатив(ла)';sending=false;
+});
+$('#newOrder').addEventListener('click',()=>{S={pair:false,active:0,braces:[newBr(),newBr()],sel:null};ship.ok=false;['fName','fPhone','fCity','fPoint','fNote'].forEach(i=>{$('#'+i).value=''});go('builder')});
 
 route();
 })();
