@@ -67,6 +67,13 @@ button{font:inherit;color:inherit;cursor:pointer}
 .works figure{margin:0;border-radius:18px;overflow:hidden;display:flex;flex-direction:column;border:1px solid var(--line)}
 .works img{width:100%;aspect-ratio:1;object-fit:cover;display:block}
 .works figcaption{padding:10px 12px 12px;font-size:13px;font-weight:600;line-height:1.3;color:var(--ink);background:var(--surface)}
+.rv-photos{display:flex;gap:8px;flex-wrap:wrap}
+.rv-photos button{border:0;padding:0;background:none;position:relative;border-radius:12px;overflow:hidden;width:72px;height:72px}
+.rv-photos img{width:100%;height:100%;object-fit:cover;display:block}
+.rv-photos .x{position:absolute;top:3px;right:3px;width:22px;height:22px;border-radius:50%;background:rgba(0,0,0,.6);color:#fff;font-size:14px;line-height:22px;text-align:center}
+.rv-add{display:inline-flex;align-items:center;justify-content:center;gap:6px;border:1px dashed var(--taupe);border-radius:12px;padding:10px 14px;background:var(--surface);font-weight:600;align-self:flex-start}
+.lightbox{position:fixed;inset:0;background:rgba(20,10,8,.85);display:flex;align-items:center;justify-content:center;z-index:60;padding:16px}
+.lightbox img{max-width:100%;max-height:100%;border-radius:12px}
 /* cards, lists */
 .card{background:var(--surface);border:1px solid var(--line);border-radius:20px;padding:16px;box-shadow:var(--shadow)}
 .sec{display:flex;flex-direction:column;gap:12px}
@@ -115,7 +122,7 @@ input[aria-invalid="true"],select[aria-invalid="true"]{border-color:var(--bad)}
 .switch label{font-weight:600}
 .tg{position:relative;width:50px;height:30px;flex:none}
 .tg input{position:absolute;inset:0;opacity:0;margin:0;cursor:pointer}
-.tg span{position:absolute;inset:0;background:var(--line);border-radius:999px;transition:background .2s}
+.tg span{pointer-events:none;position:absolute;inset:0;background:var(--line);border-radius:999px;transition:background .2s}
 .tg span::after{content:"";position:absolute;top:3px;left:3px;width:24px;height:24px;border-radius:50%;background:#fff;box-shadow:0 1px 3px rgba(0,0,0,.3);transition:transform .2s}
 .tg input:checked+span{background:var(--accent)}
 .tg input:checked+span::after{transform:translateX(20px)}
@@ -237,6 +244,11 @@ details.bd summary{cursor:pointer;font-weight:600}
         <div class="field"><label for="rvName">Ім'я</label><input type="text" id="rvName" autocomplete="given-name" maxlength="40"></div>
         <div class="field"><label>Оцінка</label><div class="stars" id="rvStars" role="radiogroup" aria-label="Оцінка"></div></div>
         <div class="field"><label for="rvText">Ваш відгук</label><textarea id="rvText" maxlength="500"></textarea><div class="err" id="rvErr"></div></div>
+        <div class="field"><label>Фото (до 3)</label>
+          <div class="rv-photos" id="rvPhotos"></div>
+          <button type="button" class="rv-add" id="rvAdd">+ Додати фото</button>
+          <input type="file" id="rvFile" accept="image/*" multiple hidden>
+        </div>
         <button class="btn sm" type="submit" style="align-self:flex-start">Надіслати відгук</button>
         <p class="muted small">Демо: відгуки зберігаються лише в цьому браузері. У робочій версії вони потраплятимуть до бази.</p>
       </form>
@@ -348,7 +360,7 @@ details.bd summary{cursor:pointer;font-weight:600}
 (function(){
 'use strict';
 const $=s=>document.querySelector(s), $$=s=>[...document.querySelectorAll(s)];
-const store={get(k,d){try{const v=localStorage.getItem(k);return v?JSON.parse(v):d}catch(e){return d}},set(k,v){try{localStorage.setItem(k,JSON.stringify(v))}catch(e){}}};
+const store={get(k,d){try{const v=localStorage.getItem(k);return v?JSON.parse(v):d}catch(e){return d}},set(k,v){try{localStorage.setItem(k,JSON.stringify(v));return true}catch(e){return false}}};
 try{const tg=window.Telegram&&window.Telegram.WebApp;if(tg){tg.ready();tg.expand()}}catch(e){}
 
 /* ---------- catalogue ---------- */
@@ -491,15 +503,39 @@ $('#rvStars').addEventListener('click',e=>{const b=e.target.closest('[data-n]');
 function esc(s){return String(s).replace(/[&<>"]/g,c=>({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;'}[c]))}
 function renderReviews(){
   const rv=store.get('ls_reviews',[]);
-  $('#reviewList').innerHTML=rv.length?rv.map(r=>'<div class="review"><div><b>'+esc(r.name)+'</b> <span style="color:var(--rose)">'+'★'.repeat(r.stars)+'</span></div><p>'+esc(r.text)+'</p><span class="muted small">'+esc(r.date)+'</span></div>').join(''):'<div class="empty">Відгуків ще немає. Напишіть перший після замовлення.</div>';
+  $('#reviewList').innerHTML=rv.length?rv.map(r=>'<div class="review"><div><b>'+esc(r.name)+'</b> <span style="color:var(--rose)">'+'★'.repeat(r.stars)+'</span></div><p>'+esc(r.text)+'</p>'+((r.photos&&r.photos.length)?'<div class="rv-photos">'+r.photos.map(p=>'<button type="button" data-lb="'+p+'" aria-label="Відкрити фото"><img alt="Фото до відгуку" src="'+p+'"></button>').join('')+'</div>':'')+'<span class="muted small">'+esc(r.date)+'</span></div>').join(''):'<div class="empty">Відгуків ще немає. Напишіть перший після замовлення.</div>';
   renderStars();
 }
+let rvPics=[];
+function renderRvPics(){
+  $('#rvPhotos').innerHTML=rvPics.map((p,i)=>'<button type="button" data-rm="'+i+'" aria-label="Прибрати фото"><img alt="" src="'+p+'"><span class="x">×</span></button>').join('');
+  $('#rvAdd').hidden=rvPics.length>=3;
+}
+function shrink(file){
+  return new Promise(res=>{
+    const url=URL.createObjectURL(file),im=new Image();
+    im.onload=()=>{const k=Math.min(1,800/Math.max(im.naturalWidth,im.naturalHeight)),cv=document.createElement('canvas');
+      cv.width=Math.round(im.naturalWidth*k);cv.height=Math.round(im.naturalHeight*k);cv.getContext('2d').drawImage(im,0,0,cv.width,cv.height);
+      URL.revokeObjectURL(url);res(cv.toDataURL('image/jpeg',.78))};
+    im.onerror=()=>{URL.revokeObjectURL(url);res(null)};im.src=url;
+  });
+}
+$('#rvAdd').addEventListener('click',()=>{$('#rvFile').value='';$('#rvFile').click()});
+$('#rvFile').addEventListener('change',async e=>{
+  for(const f of [...e.target.files]){if(rvPics.length>=3)break;const d=await shrink(f);if(d)rvPics.push(d)}
+  renderRvPics();
+});
+$('#rvPhotos').addEventListener('click',e=>{const b=e.target.closest('[data-rm]');if(b){rvPics.splice(+b.dataset.rm,1);renderRvPics()}});
+$('#reviewList').addEventListener('click',e=>{const b=e.target.closest('[data-lb]');if(!b)return;
+  const lb=document.createElement('div');lb.className='lightbox';lb.innerHTML='<img alt="Фото до відгуку" src="'+b.dataset.lb+'">';
+  lb.addEventListener('click',()=>lb.remove());document.body.appendChild(lb)});
 $('#reviewForm').addEventListener('submit',e=>{
   e.preventDefault();const name=$('#rvName').value.trim(),text=$('#rvText').value.trim();
   if(!name||!text){$('#rvErr').textContent='Вкажіть ім\'я та напишіть кілька слів про браслет.';return}
   $('#rvErr').textContent='';
-  const rv=store.get('ls_reviews',[]);rv.unshift({name,text,stars:rvStar,date:new Date().toLocaleDateString('uk-UA')});store.set('ls_reviews',rv);
-  $('#rvName').value='';$('#rvText').value='';renderReviews();
+  const rv=store.get('ls_reviews',[]);rv.unshift({name,text,stars:rvStar,photos:rvPics.slice(),date:new Date().toLocaleDateString('uk-UA')});
+  if(!store.set('ls_reviews',rv)){rv[0].photos=[];if(!store.set('ls_reviews',rv)){$('#rvErr').textContent='Не вдалося зберегти відгук у браузері.';return}$('#rvErr').textContent='Відгук збережено без фото: у браузері закінчилося місце.'}
+  $('#rvName').value='';$('#rvText').value='';rvPics=[];renderRvPics();renderReviews();
 });
 /* Q&A */
 const FAQ=[
