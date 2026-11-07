@@ -92,7 +92,7 @@ button{font:inherit;color:inherit;cursor:pointer}
 .payopt b{display:block}
 .payopt span.d{display:block;font-size:13px;opacity:.8;margin-top:2px}
 .req-row{display:flex;justify-content:space-between;align-items:center;gap:12px;padding:6px 0}
-.req-row code{font:600 16px var(--f-body);letter-spacing:.04em;word-break:break-all}
+.req-row code{font:600 17px var(--f-body);letter-spacing:.06em;user-select:all;-webkit-user-select:all}
 /* cards, lists */
 .card{background:var(--surface);border:1px solid var(--line);border-radius:20px;padding:16px;box-shadow:var(--shadow)}
 .sec{display:flex;flex-direction:column;gap:12px}
@@ -410,7 +410,7 @@ const CHARMS=[
 ];
 const CH=Object.fromEntries(CHARMS.map(c=>[c.id,c]));
 const PRICE={plain:[20,25],photo:[30,35],glitter:[35,40],extPhoto:65,extPlain:55}; // [silver, colour]
-const PAY={card:'',holder:'',prepay:150,npFixed:20,npPct:0.02}; // card: впишіть номер картки, коли будете готові
+const PAY={card:'4874070063179947',holder:'Селюк Валерія (monobank)',prepay:150,npFixed:20,npPct:0.02}; // card: впишіть номер картки, коли будете готові
 const avail={};
 const isOn=id=>avail[id]!==false;
 const uah=n=>n.toLocaleString('uk-UA')+' грн';
@@ -890,14 +890,32 @@ function renderPay(){
     opt('full','Повна оплата '+uah(c.T),'Без комісії за переказ залишку.');
   const row=(l,v)=>'<div class="req-row"><span class="muted">'+l+'</span><b class="num">'+v+'</b></div>';
   $('#payReq').innerHTML=row('До сплати зараз',uah(c.now))+
-    (PAY.card?'<div class="req-row"><code id="cardNo">'+esc(PAY.card)+'</code><button type="button" class="btn sm ghost" id="copyCard">Копіювати</button></div>'+(PAY.holder?'<div class="muted small">'+esc(PAY.holder)+'</div>':''):'<div class="muted small">Номер картки з\'явиться тут, коли майстриня його додасть.</div>')+
+    (PAY.card?'<div class="req-row"><code id="cardNo">'+esc(PAY.card.replace(/(\d{4})(?=\d)/g,'$1 '))+'</code><button type="button" class="btn sm ghost" id="copyCard">Копіювати</button></div>'+(PAY.holder?'<div class="muted small">'+esc(PAY.holder)+'</div>':''):'<div class="muted small">Номер картки з\'явиться тут, коли майстриня його додасть.</div>')+
     '<div class="muted small">У коментарі до переказу вкажіть ПІБ отримувача замовлення.</div>';
 }
 $('#payOpts').addEventListener('click',e=>{const b=e.target.closest('[data-pm]');if(b){payMode=b.dataset.pm;renderPay()}});
+function copyText(txt){
+  if(navigator.clipboard&&navigator.clipboard.writeText){
+    return navigator.clipboard.writeText(txt).catch(()=>legacyCopy(txt));
+  }
+  return legacyCopy(txt);
+}
+function legacyCopy(txt){
+  return new Promise((res,rej)=>{
+    const ta=document.createElement('textarea');ta.value=txt;ta.setAttribute('readonly','');
+    ta.style.cssText='position:fixed;top:0;left:0;opacity:0;font-size:16px';
+    document.body.appendChild(ta);ta.focus();ta.select();ta.setSelectionRange(0,txt.length);
+    let ok=false;try{ok=document.execCommand('copy')}catch(e){}
+    ta.remove();ok?res():rej(new Error('copy'));
+  });
+}
 $('#payReq').addEventListener('click',e=>{
   if(e.target.id!=='copyCard')return;
-  const n=PAY.card,btn=e.target;
-  (navigator.clipboard?navigator.clipboard.writeText(n):Promise.reject()).then(()=>{btn.textContent='Скопійовано'}).catch(()=>{const r=document.createRange();r.selectNodeContents($('#cardNo'));const s=getSelection();s.removeAllRanges();s.addRange(r);btn.textContent='Виділено'});
+  const btn=e.target;
+  copyText(PAY.card).then(()=>{btn.textContent='Скопійовано ✓'}).catch(()=>{
+    const r=document.createRange();r.selectNodeContents($('#cardNo'));const s=getSelection();s.removeAllRanges();s.addRange(r);
+    btn.textContent='Виділено, скопіюйте вручну';
+  });
 });
 $('#pBack').addEventListener('click',()=>go('checkout'));
 let sending=false;
